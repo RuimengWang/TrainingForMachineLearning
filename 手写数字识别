@@ -1,0 +1,60 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn import datasets
+digits=datasets.load_digits()
+
+"""
+把数据代表的图片显示出来
+"""
+
+"""
+images_and_labels=list(zip(digits.images,digits.target))
+for index, (image,label) in enumerate(images_and_labels[:80]):
+    plt.subplot(8,10,index+1)
+    plt.axis("off")
+    plt.imshow(image,cmap=plt.cm.gray_r,interpolation="nearest")
+    plt.title("Digit:%i"%label,fontsize=8)
+"""
+
+"""
+在这个地方分为训练集和测试集，注意上一句指令在后期版本已经被删除（网上的有些资料是错的）
+"""
+#from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
+Xtrain,Xtest,Ytrain,Ytest=train_test_split(digits.data,digits.target,test_size=0.2,random_state=2)
+
+#print Xtrain
+#print Ytrain
+
+"""
+在这个地方使用了列表生成式:
+"""
+k1=[0.01+0.01*i for i in range(10) ]
+print (k1)
+"""
+在这个地方使用支持向量机进行分类，也可以使用其他的传统机器学习算法
+"""
+
+"""
+from sklearn import svm
+for term in k1:
+    clf=svm.SVC(gamma=term)
+    clf.fit(Xtrain,Ytrain)
+    print (term,clf.score(Xtest,Ytest))
+"""
+
+"""
+在这个地方对结果进行测试,我们发现在k取0.04的时候准确率最高
+"""
+
+"""
+在这个地方对C进行调参
+"""
+from sklearn import svm
+l1=[(10+10*i) for i in range(10)]
+for term in l1:
+    clf=svm.SVC(gamma=0.01,C=term)
+    clf.fit(Xtrain,Ytrain)
+    print (term,clf.score(Xtest,Ytest))
