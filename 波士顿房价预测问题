@@ -1,0 +1,45 @@
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.utils import shuffle
+
+housing_data=datasets.load_boston()
+
+X,Y=shuffle(housing_data.data,housing_data.target,random_state=7)
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=42)
+
+"""
+print (pd.DataFrame(X_train)).shape
+print (pd.DataFrame(X_test)).shape
+print (pd.DataFrame(Y_train)).shape
+print (pd.DataFrame(Y_test)).shape
+"""
+
+from sklearn.tree import DecisionTreeRegressor
+df_regressor=DecisionTreeRegressor(max_depth=4)
+df_regressor.fit(X_train,Y_train)
+
+from sklearn.ensemble import AdaBoostRegressor
+ab_regressor=AdaBoostRegressor(DecisionTreeRegressor(max_depth=4),n_estimators=400,random_state=7)
+ab_regressor.fit(X_train,Y_train)
+
+y_preb_df=df_regressor.predict(X_test)
+y_preb_ab=ab_regressor.predict(X_test)
+
+from sklearn.metrics import mean_squared_error
+mse=mean_squared_error
+print mse(y_preb_df,Y_test)
+print mse(y_preb_ab,Y_test)
+
+"""
+这说明使用Adaboost的确可以降低MSE
+"""
+
+"""
+在这个地方输出feature importance
+"""
+
+print df_regressor.feature_importances_
+print ab_regressor.feature_importances_
