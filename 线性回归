@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jul 30 04:02:24 2018
+
+@author: wrm
+"""
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import datasets
+
+iris=datasets.load_iris().data
+iris_pd=pd.DataFrame(iris)
+
+X=iris_pd[[0,1,2]]
+Y=iris_pd[[3]]
+
+
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=42)
+#print X_train
+#print Y_train
+
+from sklearn import linear_model
+linear_regressor=linear_model.LinearRegression()
+linear_regressor.fit(X_train,Y_train)
+
+#print (linear_regressor)
+
+
+import matplotlib.pyplot as plt
+Y_test_pred=linear_regressor.predict(X_test)
+
+"""
+plt.figure()
+plt.scatter(Y_test,Y_test_pred,color="green")
+plt.show()
+"""
+
+"""
+In this part we discuss about ridge regression and polynomial. 
+"""
+
+import sklearn.metrics as sm
+print sm.mean_absolute_error(Y_test,Y_test_pred)
+print sm.mean_squared_error(Y_test,Y_test_pred)
+
+from sklearn.preprocessing import PolynomialFeatures
+polynomial=PolynomialFeatures(degree=3)
+polynomial.fit(X_train,Y_train)
+Y_test_pred_3=polynomial.fit_transform(X_test)
+print (Y_test_pred_3)
