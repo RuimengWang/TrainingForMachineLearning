@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jul 31 22:01:31 2018
+
+@author: wrm
+"""
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+#X=np.array([[4,7],[3.5,8],[3.1,6.2],[0.5,1],[1,2],[1.2,1.9],[6,2],[5.7,1.5],[5.4,2.2]])
+#y=np.array([0,0,0,1,1,1,2,2,2])
+
+"""
+在这里我们引入数据
+"""
+#iris=sns.load_dataset("iris")
+sns.set(style="white")
+
+# Load the Iris Data
+iris = sns.load_dataset("iris")
+
+# Make pair plot
+"""
+g=sns.PairGrid(iris,hue="species")
+g.map_diag(plt.hist)
+g.map_offdiag(plt.scatter)
+#g.add_legend()
+
+# Lets explicitly set the axes limits
+axes = g.axes
+
+lim = [(3, 9), (1.5, 5), (-2, 10), (-1, 3.5)]
+
+for i in range(len(lim)):
+    for j in range(len(lim)):
+        axes[i, j].set_xlim(lim[j])
+        axes[i, j].set_ylim(lim[i])
+"""
+     
+from sklearn import preprocessing
+label_encoder=preprocessing.LabelEncoder()
+#input_classes=['setosa','versicolor','virginica']
+label_encoder.fit(iris["species"])
+iris["species"]=label_encoder.transform(iris["species"])
+#print iris
+
+X=iris[["sepal_length","sepal_width","petal_length","petal_width"]]
+Y=iris[["species"]]
+#print X
+#print y
+
+from sklearn.model_selection import train_test_split
+Xtrain,Xtest,Ytrain,Ytest=train_test_split(X,Y,test_size=0.2,random_state=2)
+
+#print Xtrain
+#print Xtest.shape
+
+"""
+在这个问题里，取test_size=0.2，可以获得120组训练数据和30组测试数据。可以随意调节
+"""
+
+def confusion(test, predict, title):
+    # Define names for the three Iris types
+    names = ['setosa', 'versicolor', 'virginica']
+    # Make a 2D histogram from the test and result arrays
+    pts, xe, ye = np.histogram2d(test, predict, bins=3)
+    # For simplicity we create a new DataFrame
+    pd_pts = pd.DataFrame(pts.astype(int), index=names, columns=names )
+    # Display heatmap and add decorations
+    hm = sns.heatmap(pd_pts, annot=True, fmt="d")
+    hm.axes.set_title(title)   
+    return None
+
+from sklearn import neighbors
+# The number of neighbors affects performance
+nbrs = 5
+# First we construct our Classification Model
+knn = neighbors.KNeighborsClassifier(n_neighbors=nbrs)
+# Next we train our model
+knn.fit(Xtrain, Ytrain.values.ravel())
+# Finally, we test our model
+result = knn.predict(Xtest)
+y_true=list(result)
+y_pred=list(Ytest["species"])
+
+from sklearn.metrics import accuracy_score
+print accuracy_score(y_true, y_pred, normalize=True)
+
+"""
+一般来说在实际工程中，会给一个循环，不断地去调参然后输出准确率（也可以做出一个曲线），
+用这种方法去定位最好的参数。如以下所示：
+"""
+
+from sklearn.metrics import accuracy_score
+para_list=[i for i in range(1,10)]
+for nbrs in para_list:
+    knn = neighbors.KNeighborsClassifier(n_neighbors=nbrs)
+    # Next we train our model
+    knn.fit(Xtrain, Ytrain.values.ravel())
+    # Finally, we test our model
+    result = knn.predict(Xtest)
+    y_true=list(result)
+    y_pred=list(Ytest["species"])
+    print accuracy_score(y_true, y_pred, normalize=True)
+
+
+#print("KNN ({0} neighbors) prediction accuracy = {1:5.1f}%".format(nbrs, 100.0 * knn.score(d_test, l_test)))
+
+confusion(y_true, y_pred, "KNN-({0}) Model".format(nbrs))
